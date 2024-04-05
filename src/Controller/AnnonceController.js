@@ -7,8 +7,8 @@ async function createAnnonce(req, res) {
   if (
     !req.body.titre ||
     !req.body.image ||
-    !req.body.description ||
-    !localStorage.getItem("_id")
+    !req.body.description
+    // !localStorage.getItem("_id")
   ) {
     res.status(400).json({ error: "Missing fields" });
     return;
@@ -17,8 +17,8 @@ async function createAnnonce(req, res) {
     let newAnnonce = new Annonce(
       req.body.titre,
       req.body.image,
-      req.body.description,
-      localStorage.getItem("_id")
+      req.body.description
+      // localStorage.getItem("_id")
     );
     let annonce = await client
       .db("BKN")
@@ -41,5 +41,21 @@ async function getAllAnnonce(req, res) {
     res.status(404).json({ error: e });
   }
 }
-async function deleteAnnonce(req, res) {}
-module.exports = { createAnnonce, getAllAnnonce };
+async function deleteAnnonce(req, res) {
+  let id = new ObjectId(req.params.id);
+  let apiCall = await client
+    .db("BKN")
+    .collection("annonce")
+    .deleteOne({ _id: id });
+  let response = await apiCall;
+  if (response.deletedCount === 1) {
+    res.status(200).json({
+      msg: "Supprésion réussie!",
+    });
+  } else {
+    res.status(500).json({
+      msg: "Suppréssion impossible!",
+    });
+  }
+}
+module.exports = { createAnnonce, getAllAnnonce, deleteAnnonce };
