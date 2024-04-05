@@ -1,6 +1,5 @@
 class Annonce {
-  constructor(id, titre, image, description, idUser) {
-    this.id = id;
+  constructor(titre, image, description, idUser) {
     this.titre = titre;
     this.image = image;
     this.description = description;
