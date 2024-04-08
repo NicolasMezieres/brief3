@@ -2,11 +2,13 @@ const express = require("express");
 const {
   createAnnonce,
   getAllAnnonce,
-  deleteAnnonce,
+  deleteAnnonceById,
+  patchAnnonce,
 } = require("../AnnonceController");
 const annonce = express.Router();
 
 annonce.post("/create", createAnnonce);
 annonce.get("/all", getAllAnnonce);
-annonce.delete("/delete", deleteAnnonce);
+annonce.delete("/delete/:id", deleteAnnonceById);
+annonce.patch("/update", patchAnnonce);
 module.exports = annonce;

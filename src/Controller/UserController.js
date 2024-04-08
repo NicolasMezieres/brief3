@@ -1,6 +1,7 @@
 const { User } = require("../Models/User");
 const client = require("../Services/Connexion");
 const bcrypt = require("bcrypt");
+const { ObjectId } = require("bson");
 
 const register = async (req, res) => {
   if (
@@ -32,7 +33,7 @@ const register = async (req, res) => {
       true
     );
     let result = await client.db("BKN").collection("user").insertOne(user);
-    res.status(201).json({ "Votre compte à été créer": result });
+    res.status(201).json({ result });
   } catch (e) {
     console.log(e);
     res.status(500).json({ error: e });
@@ -67,4 +68,20 @@ async function login(req, res) {
     res.status(500).json({ error: e });
   }
 }
-module.exports = { register, login };
+async function getUserById(req, res) {
+  try {
+    let id = new ObjectId(req.params.id);
+
+    let apiCall = await client
+      .db("BKN")
+      .collection("user")
+      .findOne({ _id: id });
+    let response = await apiCall;
+    res.status(200).json({ response });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ error: e });
+    return;
+  }
+}
+module.exports = { register, login, getUserById };
