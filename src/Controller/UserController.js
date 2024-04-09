@@ -83,4 +83,14 @@ async function getUserById(req, res) {
     return;
   }
 }
-module.exports = { register, login, getUserById };
+async function getAllUser(req, res) {
+  try {
+    let apiCall = await client.db("BKN").collection("user").find();
+    let response = await apiCall.toArray();
+    res.status(200).json({ response });
+  } catch (e) {
+    console.log(e);
+    res.status;
+  }
+}
+module.exports = { register, login, getUserById, getAllUser };
