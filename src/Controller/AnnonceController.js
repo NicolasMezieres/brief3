@@ -2,7 +2,6 @@ const { Annonce } = require("../Models/Annonce");
 const client = require("../Services/Connexion");
 const { ObjectId } = require("bson");
 
-// id user
 async function createAnnonce(req, res) {
   if (
     !req.body.titre ||
@@ -46,15 +45,72 @@ async function getAllAnnonce(req, res) {
   try {
     let apiCall = await client.db("BKN").collection("annonce").find();
     let annonces = await apiCall.toArray();
-    res.status(200).json({ annonces });
+    res.status(200).json({
+      annonces,
+    });
   } catch (e) {
     console.log(e);
     res.status(404).json({ error: e });
   }
 }
+async function getAnnonceById(req, res) {
+  let id = req.params.id;
+  if (!id) {
+    res.status(404).json({ msg: "erreur" });
+  }
+  try {
+    let foundAnnonce = await client
+      .db("BKN")
+      .collection("annonce")
+      .findOne({ id: id });
+    let result = await foundAnnonce;
+    res.status(200).json(result);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ error: e });
+  }
+}
+async function compareUserId(req, res) {
+  let idUser = req.body.idUser;
+  let idUserUnique = new ObjectId(req.body.idUser);
+  let idAnnonce = req.body.idAnnonce;
+  if (!idUser || !idAnnonce) {
+    return res.status(401).json({ error: "error" });
+  }
+  try {
+    let foundUser = await client
+      .db("BKN")
+      .collection("user")
+      .findOne({ _id: idUserUnique });
+    let responseFoundUser = await foundUser;
+    if (!responseFoundUser) {
+      return res.status(404).json({ error: "not found" });
+    }
+    let foundAnnonce = await client
+      .db("BKN")
+      .collection("annonce")
+      .findOne({ id: idAnnonce });
+    let responseAnnonce = await foundAnnonce;
+    if (
+      responseAnnonce.idUser === idUser ||
+      responseFoundUser.role === "admin"
+    ) {
+      res.status(200).json({ msg: "vous êtes l'auteur de l'annonce" });
+      return;
+    }
+    res.status(404).json({ msg: "vous n'êtes pas l'auteur de l'annonce" });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ e: e });
+  }
+}
 async function patchAnnonce(req, res) {
   try {
-    let annonce = {
+    let findAnnonce = await client
+      .db("BKN")
+      .collection("annonce")
+      .findOne({ id: req.body.id });
+    const annonce = {
       ...req.body,
     };
     let uniqueId = new ObjectId(annonce._id);
@@ -89,20 +145,50 @@ async function patchAnnonce(req, res) {
   }
 }
 async function deleteAnnonceById(req, res) {
+  let idAnnonce = req.body.id;
+  let idUser = req.body.idUser;
+  let idUserUnique = new ObjectId(idUser);
+  if (!idUser || !idAnnonce) {
+    return res.status(400).json({ msg: "invalid" });
+  }
   try {
-    let apiCall = await client
+    let findUser = await client
+      .db("BKN")
+      .collection("user")
+      .findOne({ _id: idUserUnique });
+    let responseFindUser = await findUser;
+    if (!responseFindUser) {
+      return res.status(404).json({ msg: "not found" });
+    }
+    let findAnnonce = await client
       .db("BKN")
       .collection("annonce")
-      .deleteOne({ id: req.params.id });
-    let response = await apiCall;
-    if (response.deletedCount === 1) {
-      res.status(200).json({
-        msg: "Supprésion réussie!",
-      });
+      .findOne({ id: idAnnonce });
+    let responseFindAnnonce = await findAnnonce;
+    if (!findAnnonce) {
+      return res.status(404).json({ msg: "not found" });
+    }
+    if (
+      idUser === responseFindAnnonce.idUser ||
+      responseFindUser.role === "admin"
+    ) {
+      let deleteAnnonce = await client
+        .db("BKN")
+        .collection("annonce")
+        .deleteOne({ id: idAnnonce });
+      let response = await deleteAnnonce;
+
+      if (response.deletedCount === 1) {
+        return res.status(200).json({
+          msg: "Supprésion réussie!",
+        });
+      } else {
+        return res.status(500).json({
+          msg: "Suppréssion impossible!",
+        });
+      }
     } else {
-      res.status(500).json({
-        msg: "Suppréssion impossible!",
-      });
+      return res.status(401).json({ msg: "not authorized" });
     }
   } catch (e) {
     console.log(e);
@@ -113,4 +199,6 @@ module.exports = {
   getAllAnnonce,
   deleteAnnonceById,
   patchAnnonce,
+  getAnnonceById,
+  compareUserId,
 };

@@ -71,7 +71,6 @@ async function login(req, res) {
 async function getUserById(req, res) {
   try {
     let id = new ObjectId(req.params.id);
-
     let apiCall = await client
       .db("BKN")
       .collection("user")
