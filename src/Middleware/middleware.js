@@ -1,6 +1,19 @@
 const validator = require("validator");
 
-const middleURL = async (req, res, next) => {};
+const middleEmail = async (req, res, next) => {
+  let email = req.body.email;
+  if (!validator.isEmail(email)) {
+    return res.status(400).json({ error: "please send a email" });
+  }
+  next();
+};
+const middleURL = async (req, res, next) => {
+  let url = req.body.image;
+  if (!validator.isURL(url)) {
+    return res.status(400).json({ error: "please send a url" });
+  }
+  next();
+};
 const middleId = async (req, res, next) => {
   let idBody = req.body.idUser;
   let idParams = req.params.id;
@@ -15,4 +28,4 @@ const middleId = async (req, res, next) => {
   next();
 };
 
-module.exports = { middleId };
+module.exports = { middleId, middleURL, middleEmail };

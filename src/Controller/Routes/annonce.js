@@ -8,10 +8,10 @@ const {
   getAnnonceById,
   compareUserId,
 } = require("../AnnonceController");
-const { middleId } = require("../../Middleware/middleware");
+const { middleId, middleURL } = require("../../Middleware/middleware");
 const annonce = express.Router();
 
-annonce.post("/create", middleId, createAnnonce);
+annonce.post("/create", middleId, middleURL, createAnnonce);
 annonce.get("/all", getAllAnnonce);
 annonce.delete("/delete", deleteAnnonceById);
 annonce.patch("/update", middleId, patchAnnonce);

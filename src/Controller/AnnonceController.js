@@ -7,18 +7,20 @@ async function createAnnonce(req, res) {
     !req.body.titre ||
     !req.body.image ||
     !req.body.description ||
-    !req.body.id
+    !req.body.idUser
   ) {
     res.status(400).json({ error: "Missing fields" });
     return;
   }
-  let uniqueId = new ObjectId(req.body.id);
+  let uniqueId = new ObjectId(req.body.idUser);
+
   let searchUser = await client
     .db("BKN")
     .collection("user")
     .findOne({ _id: uniqueId });
+
   let foundUser = await searchUser;
-  console.log(foundUser);
+
   if (!foundUser) {
     res.status(404).json({ error: "not found test " });
     return;
@@ -28,7 +30,7 @@ async function createAnnonce(req, res) {
       req.body.titre,
       req.body.image,
       req.body.description,
-      req.body.id
+      req.body.idUser
     );
     let annonce = await client
       .db("BKN")
@@ -91,6 +93,9 @@ async function compareUserId(req, res) {
       .collection("annonce")
       .findOne({ id: idAnnonce });
     let responseAnnonce = await foundAnnonce;
+    if (!responseAnnonce) {
+      return res.status(404).json({ error: "not found" });
+    }
     if (
       responseAnnonce.idUser === idUser ||
       responseFoundUser.role === "admin"
