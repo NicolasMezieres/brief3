@@ -23,7 +23,7 @@ const middleId = async (req, res, next) => {
     (!validator.isMongoId(idParams + "") && idParams) ||
     (!validator.isMongoId(uniqueId + "") && uniqueId)
   ) {
-    return res.json({ message: "please send a mongoid" });
+    return res.status(400).json({ error: "please send a mongoid" });
   }
   next();
 };

@@ -15,7 +15,6 @@ annonce.post("/create", middleId, middleURL, createAnnonce);
 annonce.get("/all", getAllAnnonce);
 annonce.delete("/delete", deleteAnnonceById);
 annonce.patch("/update", middleId, patchAnnonce);
-annonce.get("/:id", getAnnonceById);
 annonce.post("/compareUserId", middleId, compareUserId);
-
+annonce.get("/:id", getAnnonceById);
 module.exports = annonce;

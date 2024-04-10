@@ -22,7 +22,7 @@ async function createAnnonce(req, res) {
   let foundUser = await searchUser;
 
   if (!foundUser) {
-    res.status(404).json({ error: "not found test " });
+    res.status(404).json({ error: "not found" });
     return;
   }
   try {
@@ -110,14 +110,10 @@ async function compareUserId(req, res) {
   }
 }
 async function patchAnnonce(req, res) {
+  const annonce = {
+    ...req.body,
+  };
   try {
-    let findAnnonce = await client
-      .db("BKN")
-      .collection("annonce")
-      .findOne({ id: req.body.id });
-    const annonce = {
-      ...req.body,
-    };
     let uniqueId = new ObjectId(annonce._id);
     let titre = annonce.titre;
     let image = annonce.image;
